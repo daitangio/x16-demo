@@ -2,8 +2,10 @@
 # Renumber a BASIC PROGRAM.
 # Manage GOTO AND GOSUB Calls too
 
+
 import sys,re
 from pathlib import Path
+import click
 
 LINE_FINDER=re.compile("([0-9]+)", re.IGNORECASE)
 
@@ -40,7 +42,7 @@ def renumber_file(fname,old2new, postfix=".new"):
 def fix_goto_gosub(fname,old2new):
     """
     A second pass is needed to correct the GOTO/GOSUB
-    This code should also work with on... goto 
+    This code also work with on...goto/gosub 
     """
     GOTO_FINDER=re.compile(r'GO(TO|SUB| TO) ([0-9]+)([:]*)', re.IGNORECASE)
     temp_filename=fname+".tmp"
@@ -60,15 +62,27 @@ def fix_goto_gosub(fname,old2new):
                     #print ("s/"+m.group(0)+"/"+new_goto+"/",dest_line)
                 dest.write(dest_line)    
     return (Path(temp_filename)).replace(fname)
-                
 
-def renumber(flist):
-    for fname in flist:
+@click.option("--start",  default=10, help="Start renumber from")
+@click.option("--increment",  default=10, help="Increment factor")
+@click.argument("basic_files", nargs=-1, required=True)
+@click.command()
+def main(basic_files: list, start,increment):
+    """ Renumber BASIC v2 Programs
+        Support GOTO/GOSUB renumbering via a simple two-pass algorithm
+
+        Known limitations: also renumber strings containing GOTO <number> because it is unable to skip 
+        quoted strings.
+
+        Author: Giovanni Giorgi 
+    """
+    for fname in basic_files:
         print("Renumbering",fname)
-        old2new=collect_numbers(fname)
-        #print(old2new)
+        old2new=collect_numbers(fname,start,increment)        
         dest_filename=renumber_file(fname,old2new)
         fix_goto_gosub(dest_filename,old2new)
         Path(dest_filename).replace(fname)
+
+
 if __name__ == "__main__":
-    renumber(sys.argv[1:])
+    main()
