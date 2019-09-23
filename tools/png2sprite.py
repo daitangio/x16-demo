@@ -62,6 +62,7 @@ default_palette.reverse()
 
 # load image
 im = Image.open(args.input)
+im = im.convert('RGBA')
 p = np.array(im)
 
 # convert to sprite data
@@ -109,12 +110,8 @@ with open(args.output, "w") as file:
             # write palette index
             if args.f == 'c':
                 file.write("0x%02x," % best)
-            if args.f == 'acme':
+            if args.f == 'acme' or args.f == 'basic':
                 file.write("$%02x" % best)
-                if i < 15:
-                    file.write(",")
-            if args.f == 'basic':
-                file.write("%i" % best)
                 if i < 15:
                     file.write(",")
             i = i + 1
