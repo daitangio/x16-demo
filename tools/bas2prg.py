@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # Copyright (c) 2019, Frank Buss
 # All rights reserved.
@@ -50,7 +50,7 @@ for f in os.listdir(args.input):
             bas = input.read()
 
         # add SAVE and exit command, and save as temporary file
-        bas = bas + ('\nSAVE "' + prg + '\nSYS $FFFF\n"').encode('iso-8859-1')
+        bas = bas + ('\nSAVE "' + prg + '\nPOKE $9FB4,0\nSYS $FFFF\n"').encode('iso-8859-1')
         tempFilename = args.input + ".tmp"
         with open(tempFilename, "wb") as output:
             output.write(bas)
@@ -63,6 +63,3 @@ for f in os.listdir(args.input):
 
         # remove the temporary file
         os.remove(tempFilename)
-
-        # remove memory dump created by the emulator
-        os.remove('memory.bin')
